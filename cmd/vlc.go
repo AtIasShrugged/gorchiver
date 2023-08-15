@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"gorchiver/lib/vlc"
 	"io"
 	"os"
 	"path/filepath"
@@ -21,6 +22,7 @@ func init() {
 }
 
 const packedExtension = "vlc"
+const outputDir = "output/"
 
 var ErrEmptyPath = errors.New("path to file is not specified")
 
@@ -41,9 +43,9 @@ func pack(_ *cobra.Command, args []string) {
 		handleErr(err)
 	}
 
-	packed := "" + string(data) // TODO: replace by Encode(data)
+	packed := vlc.Encode(string(data))
 
-	err = os.WriteFile(packedFileName(filePath), []byte(packed), 0644)
+	err = os.WriteFile(filepath.Join(outputDir, packedFileName(filePath)), []byte(packed), 0644)
 	if err != nil {
 		handleErr(err)
 	}
