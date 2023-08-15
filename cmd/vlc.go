@@ -34,6 +34,7 @@ func pack(_ *cobra.Command, args []string) {
 	if err != nil {
 		handleErr(err)
 	}
+	defer r.Close()
 
 	data, err := io.ReadAll(r)
 	if err != nil {
