@@ -11,14 +11,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var vlcCmd = &cobra.Command{
+var vlcPackCmd = &cobra.Command{
 	Use:   "vlc",
 	Short: "Pack file using variable-length code",
 	Run:   pack,
 }
 
 func init() {
-	packCmd.AddCommand(vlcCmd)
+	packCmd.AddCommand(vlcPackCmd)
 }
 
 const packedExtension = "vlc"
@@ -44,7 +44,9 @@ func pack(_ *cobra.Command, args []string) {
 	}
 
 	packed := vlc.Encode(string(data))
-
+	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
+		os.Mkdir(outputDir, 0777)
+	}
 	err = os.WriteFile(filepath.Join(outputDir, packedFileName(filePath)), []byte(packed), 0644)
 	if err != nil {
 		handleErr(err)
