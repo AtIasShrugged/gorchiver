@@ -4,20 +4,23 @@ import (
 	"strings"
 	"unicode"
 )
+type EncoderDecoder struct {}
+
+func NewEncoderDecoder() EncoderDecoder {
+	return EncoderDecoder{}
+}
 
 type encodingTable map[rune]string
 
 // Encode encodes latin text (without symbols atm) into hex
-func Encode(str string) string {
+func (_ EncoderDecoder) Encode(str string) []byte {
 	str = prepareText(str)
-	binStr := encodeBin(str)
-	chunks := splitByChunks(binStr, chunkSize)
-
-	return chunks.ToHex().ToString()
+	chunks := splitByChunks(encodeBin(str), chunkSize)
+	return chunks.Bytes()
 }
 
-func Decode(encodedText string) string {
-	binString := NewHexChunks(encodedText).ToBinary().Join()
+func (_ EncoderDecoder) Decode(encodedData []byte) string {
+	binString := NewBinChunks(encodedData).Join()
 	decodingTree := getEncodingTable().DecodingTree()
 	return recoverText(decodingTree.Decode(binString))
 }
@@ -59,7 +62,7 @@ func recoverText(str string) string {
 		}
 		buf.WriteRune(ch)
 	}
-	if (isCapital) {
+	if isCapital {
 		buf.WriteRune('!')
 	}
 	return buf.String()
