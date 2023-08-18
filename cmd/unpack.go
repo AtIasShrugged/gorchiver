@@ -3,6 +3,7 @@ package cmd
 import (
 	"gorchiver/lib/compression"
 	"gorchiver/lib/compression/vlc"
+	"gorchiver/lib/compression/vlc/table/shannon_fano"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,12 +15,12 @@ import (
 var unpackCmd = &cobra.Command{
 	Use:   "unpack",
 	Short: "Unpack file",
-	Run: unpack,
+	Run:   unpack,
 }
 
 func init() {
 	rootCmd.AddCommand(unpackCmd)
-	unpackCmd.Flags().StringP("method", "m", "", "decompression method")
+	unpackCmd.Flags().StringP("method", "m", "", "decompression method: fano")
 	if err := unpackCmd.MarkFlagRequired("method"); err != nil {
 		panic(err)
 	}
@@ -37,10 +38,10 @@ func unpack(cmd *cobra.Command, args []string) {
 	decompMethod := cmd.Flag("method").Value.String()
 
 	switch decompMethod {
-		case "vlc":
-			decoder = vlc.NewEncoderDecoder()
-		default:
-			cmd.PrintErr("unknown decoding method")
+	case "fano":
+		decoder = vlc.NewEncoderDecoder(shannon_fano.NewGenerator())
+	default:
+		cmd.PrintErr("unknown decoding method")
 	}
 
 	filePath := args[0]
@@ -69,4 +70,3 @@ func unpackedFileName(path string) string {
 
 	return baseName + "." + unpackedExtension
 }
-

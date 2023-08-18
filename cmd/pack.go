@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gorchiver/lib/compression"
 	"gorchiver/lib/compression/vlc"
+	"gorchiver/lib/compression/vlc/table/shannon_fano"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,12 +16,12 @@ import (
 var packCmd = &cobra.Command{
 	Use:   "pack",
 	Short: "Pack file",
-	Run: pack,
+	Run:   pack,
 }
 
 func init() {
 	rootCmd.AddCommand(packCmd)
-	packCmd.Flags().StringP("method", "m", "", "compression method")
+	packCmd.Flags().StringP("method", "m", "", "compression method: fano")
 	if err := packCmd.MarkFlagRequired("method"); err != nil {
 		panic(err)
 	}
@@ -41,10 +42,10 @@ func pack(cmd *cobra.Command, args []string) {
 	compMethod := cmd.Flag("method").Value.String()
 
 	switch compMethod {
-		case "vlc":
-			encoder = vlc.NewEncoderDecoder()
-		default:
-			cmd.PrintErr("unknown encoding method")
+	case "fano":
+		encoder = vlc.NewEncoderDecoder(shannon_fano.NewGenerator())
+	default:
+		cmd.PrintErr("unknown encoding method")
 	}
 
 	filePath := args[0]
